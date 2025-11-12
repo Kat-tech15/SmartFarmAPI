@@ -19,7 +19,7 @@ class CropList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CropDetail(APIView):
-    def get_obj(request, pk):
+    def get_obj(self, pk):
         try:
             crop = Crop.objects.get(pk=pk)
         except Crop.DoesNotExist:
@@ -28,6 +28,7 @@ class CropDetail(APIView):
     def get(self, request, pk):
         crop = self.get_obj(pk)
         serializer = CropSerializer(crop)
+        return Response(serializer.data, status=status.HTTP_200_oK)
     
     def put(self, request, pk):
         crop =  self.get_obj(pk)
