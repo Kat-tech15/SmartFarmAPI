@@ -148,3 +148,15 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ]
 }
+
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,
+    'SECURITY_DEFINITIONS': {
+        'TokenAuth': {
+            'type': 'apikey',
+            'in': 'header',
+            'name': 'Authorization',
+            'description':'Format: Token <your_token>',
+        }
+    },
+}
