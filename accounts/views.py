@@ -4,7 +4,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework import status
-from .serializers import UserSerializer
+from .serializers import UserSerializer, LoginSerializer, EmptySerializer
 
 
 class RegisterView(generics.GenericAPIView):
@@ -18,10 +18,14 @@ class RegisterView(generics.GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(generics.GenericAPIView):
-    serializer_class = UserSerializer
+    serializer_class = LoginSerializer
+
     def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
+        serializer= self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        username = serializer.validated_data['username']
+        password = serializer.validated_data['password']
 
         user = authenticate(username=username, password=password)
         
@@ -35,13 +39,12 @@ class LoginView(generics.GenericAPIView):
 
     
 class LogoutView(generics.GenericAPIView):
-    serializer_class = UserSerializer
+    serializer_class = EmptySerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        try:
+        if hasattr(request.user, "auth_token"):
             request.user.auth_token.delete()
-        except:
-            pass 
+
         return Response({'message': 'User logged out successfully!'}, status=status.HTTP_200_OK)
 
