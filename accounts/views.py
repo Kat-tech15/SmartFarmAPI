@@ -109,7 +109,7 @@ class LogoutView(generics.GenericAPIView):
 
         return Response({'message': 'User logged out successfully!'}, status=status.HTTP_200_OK)
 
-class ContactMessageCreateView(generics.GenericAPIView):
+class ContactMessageCreateView(generics.CreateAPIView):
     queryset = ContactMessage.objects.all()
     serializer_class = ContactMessageSerializer
     permission_classes = [permissions.AllowAny]
@@ -120,12 +120,12 @@ class ContactMessageCreateView(generics.GenericAPIView):
 
         notify_admin_contact(message_instance)
     
-class ContactMessageAdminView(generics.GenericAPIView):
+class ContactMessageAdminView(generics.ListAPIView):
     queryset = ContactMessage.objects.all().order_by('-created_at')
     serializer_class = ContactMessageSerializer
     permission_classes = [permissions.IsAdminUser]
 
-class ContactMessageDetailAdminView(generics.GenericAPIView):
+class ContactMessageDetailAdminView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ContactMessage.objects.all()
     serializer_class = ContactMessageSerializer
     permission_classes = [permissions.IsAdminUser]
