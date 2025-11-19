@@ -2,9 +2,9 @@ from rest_framework import generics, permissions,status
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
-from .serializers import UserSerializer, LoginSerializer, EmptySerializer,VerifyOTPSerializer, ResendOTPSerializer
-from .utils import send_otp_to_user
-from .models import  CustomUser, EmailOTP
+from .serializers import UserSerializer, LoginSerializer, EmptySerializer,VerifyOTPSerializer, ResendOTPSerializer, ContactMessageSerializer
+from .utils import send_otp_to_user, notify_admin_contact
+from .models import  CustomUser, EmailOTP, ContactMessage
 from django.utils import timezone
 from datetime import timedelta
 import random
@@ -109,3 +109,23 @@ class LogoutView(generics.GenericAPIView):
 
         return Response({'message': 'User logged out successfully!'}, status=status.HTTP_200_OK)
 
+class ContactMessageCreateView(generics.GenericAPIView):
+    queryset = ContactMessage.objects.all()
+    serializer_class = ContactMessageSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+    def perform_create(self, serializer):
+        message_instance = serializer.save()
+
+        notify_admin_contact(message_instance)
+    
+class ContactMessageAdminView(generics.GenericAPIView):
+    queryset = ContactMessage.objects.all().order_by('-created_at')
+    serializer_class = ContactMessageSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+class ContactMessageDetailAdminView(generics.GenericAPIView):
+    queryset = ContactMessage.objects.all()
+    serializer_class = ContactMessageSerializer
+    permission_classes = [permissions.IsAdminUser]
