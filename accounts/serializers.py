@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from accounts.models import CustomUser
+from . models import CustomUser, ContactMessage
 from rest_framework.authtoken.models import Token
 
 class UserSerializer(serializers.ModelSerializer):
@@ -31,3 +31,9 @@ class LoginSerializer(serializers.Serializer):
 
 class EmptySerializer(serializers.Serializer):
     pass
+
+class ContactMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactMessage
+        fields = ['id', 'name', 'email', 'message']
+        

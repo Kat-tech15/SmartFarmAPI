@@ -1,5 +1,5 @@
 from django.urls import path 
-from .views import RegisterView, LoginView, LogoutView, VerifyOTPView, ResendOTPView
+from .views import RegisterView, LoginView, LogoutView, VerifyOTPView, ResendOTPView, ContactMessageCreateView, ContactMessageAdminView, ContactMessageDetailAdminView
 
 
 urlpatterns = [
@@ -8,4 +8,7 @@ urlpatterns = [
     path('resend-otp/', ResendOTPView.as_view(), name='resend-otp'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
+    path('contact/', ContactMessageCreateView.as_view(), name='contact'),
+    path('admin/contact/', ContactMessageAdminView.as_view(), name='admin-contact'),
+    path('admin/contact/<int:pk>/', ContactMessageDetailAdminView.as_view(), name='admin-contact-detail'),
 ]
