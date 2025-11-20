@@ -41,6 +41,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework.authtoken',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
     'rest_framework',
     'drf_yasg',
     'accounts',
@@ -79,7 +86,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'farm.wsgi.application'
-
+SITE_ID = 1
+REST_USE_JWT = True
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -159,6 +167,24 @@ SWAGGER_SETTINGS = {
             'description':'Format: Token <your_token>',
         }
     },
+}
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google':{
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'APP': {
+            'client_id': os.getenv('GOOGLE-CLIENT_ID'),
+            'secret': os.getenv('GOOGLE_CLIENT_SECRET'),
+            'key': ''
+        }
+
+    }
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
