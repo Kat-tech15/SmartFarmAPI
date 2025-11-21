@@ -14,13 +14,15 @@ import random
 
 class RegisterView(generics.GenericAPIView):
     serializer_class = UserSerializer
+
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            send_otp_to_user(user)
-            #token, _ = Token.objects.get_or_create(user=user)
-            return Response({'message': 'User registered successfully. OTP send to your email.'}, status=status.HTTP_201_CREATED)
+            otp_via = getattr(user, 'otp_via', 'email')
+            send_otp_to_user(user, send_via_sms=(otp_via== 'sms'))
+
+            return Response({'message': 'User registered successfully. OTP send via {otp_via}.'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class VerifyOTPView(generics.GenericAPIView):
@@ -35,15 +37,28 @@ class VerifyOTPView(generics.GenericAPIView):
 
         try:
             user = CustomUser.objects.get(email=email)
-            email_otp = EmailOTP.objects.get(user=user, code=code)
         except (CustomUser.DoesNotExist, EmailOTP.DoesNotExist):
             return Response({'message': 'Invalid OTP or email.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        email_otp = EmailOTP.objects.filter(user=user, is_used=False).order_by('-created_at').first()
+        if not email_otp:
+            return Response({'message': 'OTP not found. Please request a new OTP.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if email_otp.attempts >= 5:
+            return Response({'message': 'Too many incorrect attempts. Request a new OTP'}, status=status.HTTP_429_TOO_MANY_REQUESTS)
+        
+        if email_otp.code != code:
+            email_otp.attempts += 1
+            email_otp.save(update_fields=['attempts'])
+            return Response({'message': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
         
         if email_otp.is_expired():
             return Response({'message': 'OTP has expired.'}, status=status.HTTP_400_BAD_REQUEST)
         
+        email_otp.is_used =True
+        email_otp.save(update_fields=['is_used'])
         user.is_verified = True
-        user.save()
+        user.save(update_fields=['is_verified'])
 
         return Response({'message': 'OTP verified successfully!'}, status=status.HTTP_200_OK)
 
@@ -58,22 +73,20 @@ class ResendOTPView(generics.GenericAPIView):
         try:
             user = CustomUser.objects.get(email=email)
         except CustomUser.DoesNotExist:
-            return Response({'message': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'If the email you provided exists, an OTP will be sent.'}, status=status.HTTP_200_OK)
         
         last_otp = EmailOTP.objects.filter(user=user, is_used=False).order_by('-expire_at').first()
+        cooldown_seconds = 300
         if last_otp:
-            if timezone.now() < last_otp.expire_at - timedelta(minutes=5) + timedelta(minutes=5):
-                wait_time = (last_otp.expire_at - timezone.now()).seconds
-                return Response({'message': f"please wait {wait_time//60} minutes and {wait_time%60}  seconds before requesting a new OTP."},
-                                status=status.HTTP_429_TOO_MANY_REQUESTS
-                                )
-            last_otp.delete()
-        
-        code = str(random.randint(100000, 999999))
-        expire_at = timezone.now() + timedelta(minutes=5)
-        otp_instance = EmailOTP.objects.create(code=code, expire_at=expire_at)
+            elapsed = (timezone.now() - last_otp.created_at).total_seconds()
+            if elapsed < cooldown_seconds:
+                remaining = int(cooldown_seconds - elapsed)
+                return Response({'message': f'Please wait {remaining} seconds before requesting a new OTP.'}, status=status.HTTP_429_TOO_MANY_REQUESTS)
 
-        send_otp_to_user(user, otp_instance.code)
+            EmailOTP.objects.filter(user=user, is_used=False).delete()
+        
+        otp_obj = EmailOTP.create_for_user(user)
+        send_otp_to_user(user, code=otp_obj.code)
 
         return Response({'message': 'OTP resent successfully.'}, status=status.HTTP_200_OK)
 
