@@ -1,7 +1,10 @@
 from rest_framework import generics, permissions,status
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
+from django.db import connection
+from django.http import JsonResponse
 from .serializers import UserSerializer, LoginSerializer, EmptySerializer,VerifyOTPSerializer, ResendOTPSerializer, ContactMessageSerializer
 from .utils import send_otp_to_user, notify_admin_contact
 from .models import  CustomUser, EmailOTP, ContactMessage
@@ -108,6 +111,22 @@ class LogoutView(generics.GenericAPIView):
             request.user.auth_token.delete()
 
         return Response({'message': 'User logged out successfully!'}, status=status.HTTP_200_OK)
+
+@api_view
+def health_check(request):
+    try:
+        connection.ensure_connection()
+        db_status = "connected"
+    except Exception as e:
+        db_status = f"error: {str(e)}"
+
+    return JsonResponse({
+        "status": "OK" if db_status == "connected" else "ERROR",
+        "database": db_status,
+        "version": "v1.0.0",
+        "message": "Ecommerce API is running smoothly."
+    })
+
 
 class ContactMessageCreateView(generics.CreateAPIView):
     queryset = ContactMessage.objects.all()

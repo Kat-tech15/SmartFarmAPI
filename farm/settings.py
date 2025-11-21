@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'dj_rest_auth',
     'dj_rest_auth.registration',
     'rest_framework',
+    'africastalking',
     'drf_yasg',
     'accounts',
     'livestock',
@@ -181,14 +182,15 @@ SOCIALACCOUNT_PROVIDERS = {
             'access_type': 'online',
         },
         'APP': {
-            'client_id': os.getenv('GOOGLE-CLIENT_ID'),
+            'client_id': os.getenv('GOOGLE_CLIENT_ID'),
             'secret': os.getenv('GOOGLE_CLIENT_SECRET'),
             'key': ''
         }
 
     }
 }
-
+AFRICASTALKING_USERNAME = os.getenv('AFRICASTALKING_USERNAME')
+AFRICASTALKING_API_KEY = os.getenv('AFRICASTALKING_API_KEY')
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True

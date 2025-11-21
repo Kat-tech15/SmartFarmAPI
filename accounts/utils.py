@@ -1,6 +1,7 @@
 from django.core.mail import send_mail
 from . models import EmailOTP
 from django.conf import settings
+import africastalking
 import os
 
 def send_otp_to_user(user):
@@ -37,3 +38,15 @@ def notify_admin_contact(message_instance):
         [admin_email],
         fail_silently=False,
     )
+
+def send_sms_otp(phone_number, otp_code):
+    username = os.getenv('AFRICASTALKING_USERNAME')
+    api_key = os.getenv('AFRICASTALKING_API_KEY')
+
+    africastalking.initialize(username, api_key)
+    sms = africastalking.SMS
+
+    message = f"Your OTP code is {otp_code}. It expires in 5 minutes."
+
+    response = sms.send(message, [phone_number])
+    return response
