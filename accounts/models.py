@@ -10,7 +10,7 @@ class CustomUser(AbstractUser):
         ('buyer', 'Buyer')
     ]
     role = models.CharField(max_length=100, choices=ROLE_CHOICES, default='farmer')
-    phone = models.CharField(max_length=10)
+    phone = models.CharField(max_length=15)
     email = models.EmailField(unique=True)
     location = models.CharField(max_length=100)
     is_verified = models.BooleanField(default=False)
@@ -24,6 +24,7 @@ class EmailOTP(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     expire_at = models.DateTimeField()
     is_used = models.BooleanField(default=False)
+    attempts = models.IntegerField(default=0)
 
     def __str__(self):
         return f"OTP for {self.user.email} - {self.code}"
@@ -33,8 +34,14 @@ class EmailOTP(models.Model):
         return str(random.randint(100000, 999999))
     
     @staticmethod
-    def expiry_time():
-        return timezone.now() +timedelta(minutes=5)
+    def expiry_time(minutes=5):
+        return timezone.now() +timedelta(minutes=minutes)
+    
+    @classmethod
+    def create_for_user(cls, user, minutes_valid=5):
+        code = cls.generate_code()
+        expire_at = cls.expiry_time(minutes=minutes_valid)
+        return cls.objects.create(user=user, code=code, expire_at=expire_at)
     
     def is_expired(self):
         return timezone.now() > self.expire_at
