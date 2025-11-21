@@ -19,8 +19,11 @@ class RegisterView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            otp_via = getattr(user, 'otp_via', 'email')
-            send_otp_to_user(user, send_via_sms=(otp_via== 'sms'))
+
+            otp_via = getattr(user, 'otp_via', 'email').lower()
+            send_via_sms = otp_via == 'sms'
+
+            send_otp_to_user(user, send_via_sms=send_via_sms)
 
             return Response({'message': 'User registered successfully. OTP send via {otp_via}.'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
