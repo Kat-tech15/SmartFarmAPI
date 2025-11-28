@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'dj_rest_auth',
     'dj_rest_auth.registration',
     'rest_framework',
-    'africastalking',
     'drf_yasg',
     'accounts',
     'livestock',
