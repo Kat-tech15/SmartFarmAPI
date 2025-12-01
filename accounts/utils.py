@@ -1,38 +1,51 @@
 from django.core.mail import send_mail
 from . models import EmailOTP
 from django.conf import settings
-import africastalking
-import os
+from twilio.rest import Client
 
 
 def send_sms_otp(phone_number, otp_code):
-    username = os.getenv('AT_USERNAME') or getattr(settings, 'AT_USERNAME', None)
-    api_key = os.getenv('AT_API_KEY') or getattr(settings, 'AT_API_KEY', None)
+    accoount_sid = getattr(settings, 'TWILIO_ACCOUNT_SID', None)
+    auth_token = getattr(settings, 'TWILIO_AUTH_TOKEN', None)
+    from_number = getattr(settings, 'TWILIO_PHONE_NUMBER', None)
 
-    if not username or not api_key:
-        print("Africa's Talking credentials missing; skipping SMS send.")
+    if not accoount_sid or not auth_token or not from_number:
+        print("Twilio credentials missing; skipping SMS Send.")
         return None
     
-    africastalking.initialize(username, api_key)
-    sms = africastalking.SMS
-    message = f"Your OTP code is {otp_code}. It expires in 5 minutes."
+    client = Client(accoount_sid, auth_token)
+    message =  f"Your OTP code is {otp_code}. It expires in 5 minutes."
 
     try:
-        response = sms.send(message, [phone_number])
+        response = client.messages.create(
+            body=message, 
+            from_=from_number,
+            to=phone_number
+        )
+        print("OTP sent via Twilio:", response.sid)
         return response
     except Exception as e:
-        print("SMS sending error:", e)
+        print("Twilio SMS sending error:", e)
         return None
+
+
     
-def send_otp_to_user(user, code=None, send_via_sms=True):
+def send_otp_to_user(user, code=None, via_sms=False):
     if code is None:
         otp_obj = EmailOTP.create_for_user(user)
     else:
         expire_at = EmailOTP.expiry_time()
         otp_obj = EmailOTP.objects.create(user=user, code=code, expire_at=expire_at)
 
+    if via_sms:
+        phone = getattr(user, 'phone', None)
+        if not phone:
+            print("User has no phone number; cannot send SMS OTP.")
+        else:
+            send_sms_otp(phone, otp_obj.code)
+        return otp_obj
     
-    from_email = os.getenv('EMAIL_HOST_USER') or settings.DEFAULT_FROM_EMAIL
+    from_email = getattr(settings, 'EMAIL_HOST_USER', settings.DEFAULT_FROM_EMAIL)
     send_mail(
         "Your OTP Code ✔",
         f"Your verification code is {otp_obj.code}",
@@ -40,11 +53,8 @@ def send_otp_to_user(user, code=None, send_via_sms=True):
         [user.email],
         fail_silently=False,
     )
-
-    if send_via_sms and getattr(user, 'phone', None):
-        send_sms_otp(user.phone, otp_obj.code)
-
     return otp_obj
+    
 
 def notify_admin_contact(message_instance):
     subject = f"New contact Message: {message_instance.subject if hasattr(message_instance, 'subject') else ''}"

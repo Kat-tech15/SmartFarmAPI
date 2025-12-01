@@ -23,9 +23,9 @@ class RegisterView(generics.GenericAPIView):
             otp_via = getattr(user, 'otp_via', 'email').lower()
             send_via_sms = otp_via == 'sms'
 
-            send_otp_to_user(user, send_via_sms=send_via_sms)
+            send_otp_to_user(user, via_sms=send_via_sms)
 
-            return Response({'message': 'User registered successfully. OTP send via {otp_via}.'}, status=status.HTTP_201_CREATED)
+            return Response({'message': f'User registered successfully. OTP send via {otp_via}.'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class VerifyOTPView(generics.GenericAPIView):
@@ -35,15 +35,11 @@ class VerifyOTPView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        email = serializer.validated_data['email']
         code = serializer.validated_data['code']
 
-        try:
-            user = CustomUser.objects.get(email=email)
-        except (CustomUser.DoesNotExist, EmailOTP.DoesNotExist):
-            return Response({'message': 'Invalid OTP or email.'}, status=status.HTTP_400_BAD_REQUEST)
+       
         
-        email_otp = EmailOTP.objects.filter(user=user, is_used=False).order_by('-created_at').first()
+        email_otp = EmailOTP.objects.filter(code=code, is_used=False).order_by('-created_at').first()
         if not email_otp:
             return Response({'message': 'OTP not found. Please request a new OTP.'}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -60,6 +56,7 @@ class VerifyOTPView(generics.GenericAPIView):
         
         email_otp.is_used =True
         email_otp.save(update_fields=['is_used'])
+        user = email_otp.user
         user.is_verified = True
         user.save(update_fields=['is_verified'])
 
@@ -89,7 +86,10 @@ class ResendOTPView(generics.GenericAPIView):
             EmailOTP.objects.filter(user=user, is_used=False).delete()
         
         otp_obj = EmailOTP.create_for_user(user)
-        send_otp_to_user(user, code=otp_obj.code)
+        otp_via = getattr(user, 'otp_via', 'email').lower()
+        send_via_sms = otp_via == 'sms'
+
+        send_otp_to_user(user, code=otp_obj.code, via_sms=send_via_sms)
 
         return Response({'message': 'OTP resent successfully.'}, status=status.HTTP_200_OK)
 

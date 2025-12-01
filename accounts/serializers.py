@@ -27,7 +27,6 @@ class UserSerializer(serializers.ModelSerializer):
         return user
     
 class VerifyOTPSerializer(serializers.Serializer):
-    email = serializers.EmailField()
     code = serializers.CharField(max_length=6)
 
 class ResendOTPSerializer(serializers.Serializer):

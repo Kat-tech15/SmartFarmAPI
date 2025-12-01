@@ -163,10 +163,10 @@ SWAGGER_SETTINGS = {
     'USE_SESSION_AUTH': False,
     'SECURITY_DEFINITIONS': {
         'TokenAuth': {
-            'type': 'apikey',
+            'type': 'apiKey',
             'in': 'header',
             'name': 'Authorization',
-            'description':'Format: Token <your_token>',
+            'description': 'Format: Token <your_token>',
         }
     },
 }
@@ -188,8 +188,9 @@ SOCIALACCOUNT_PROVIDERS = {
 
     }
 }
-AFRICASTALKING_USERNAME = os.getenv('AFRICASTALKING_USERNAME')
-AFRICASTALKING_API_KEY = os.getenv('AFRICASTALKING_API_KEY')
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True

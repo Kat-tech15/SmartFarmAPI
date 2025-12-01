@@ -14,6 +14,7 @@ class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
     location = models.CharField(max_length=100)
     is_verified = models.BooleanField(default=False)
+    otp_via = models.CharField(max_length=15, choices=[('email', 'Email'), ('sms', 'SMS')], default='email')
 
     def __str__(self):
         return f"{self.username} ({self.role})"
