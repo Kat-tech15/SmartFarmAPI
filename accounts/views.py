@@ -5,12 +5,11 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from django.db import connection
 from django.http import JsonResponse
+from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import UserSerializer, LoginSerializer, EmptySerializer,VerifyOTPSerializer, ResendOTPSerializer, ContactMessageSerializer
 from .utils import send_otp_to_user, notify_admin_contact
 from .models import  CustomUser, EmailOTP, ContactMessage
 from django.utils import timezone
-from datetime import timedelta
-import random
 
 class RegisterView(generics.GenericAPIView):
     serializer_class = UserSerializer
@@ -99,6 +98,7 @@ class LoginView(generics.GenericAPIView):
     def post(self, request):
         serializer= self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        
 
         username = serializer.validated_data['username']
         password = serializer.validated_data['password']
@@ -110,10 +110,10 @@ class LoginView(generics.GenericAPIView):
                 return Response({'message': 'Email not verified. Please verify your email to login.'}, status=status.HTTP_403_FORBIDDEN)
             
             
-            token, created = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key,
+            refresh  = RefreshToken.for_user(user)
+            return Response({'refresh': str(refresh),
+                             'access': str('refresh.access_token'),
                              'username': user.username,
-                             'email': user.email
             })
         return Response({'message': 'Invalid credentials.'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -123,8 +123,8 @@ class LogoutView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        if hasattr(request.user, "auth_token"):
-            request.user.auth_token.delete()
+        if hasattr(request.user, "access_token"):
+            request.user.access_token.delete()
 
         return Response({'message': 'User logged out successfully!'}, status=status.HTTP_200_OK)
 

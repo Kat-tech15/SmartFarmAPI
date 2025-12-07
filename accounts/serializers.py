@@ -22,7 +22,6 @@ class UserSerializer(serializers.ModelSerializer):
             phone = validated_data['phone'],
             password=validated_data['password']
         )
-        Token.objects.create(user=user)
         user.otp_via = otp_via
         return user
     
