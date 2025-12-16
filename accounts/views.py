@@ -112,7 +112,7 @@ class LoginView(generics.GenericAPIView):
             
             refresh  = RefreshToken.for_user(user)
             return Response({'refresh': str(refresh),
-                             'access': str('refresh.access_token'),
+                             'access': str(refresh.access_token),
                              'username': user.username,
             })
         return Response({'message': 'Invalid credentials.'}, status=status.HTTP_401_UNAUTHORIZED)

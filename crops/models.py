@@ -13,8 +13,8 @@ class Crop(models.Model):
     crop_type = models.CharField(max_length=100, choices=CROP_TYPE_CHOICES)
     price_per_kg  = models.DecimalField(max_digits=8, decimal_places=2)
     available = models.BooleanField(default=True)
-    #image = models.ImageField(upoad_to='crop_images/' null=True, blank=True)
+    image = models.ImageField(upload_to='crop_images/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.name} - {self.crop_type}"
+        return f"{self.planter} - {self.crop_type}"
