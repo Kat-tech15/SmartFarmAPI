@@ -21,14 +21,14 @@ class CropList(APIView):
 class CropDetail(APIView):
     def get_obj(self, pk):
         try:
-            crop = Crop.objects.get(pk=pk)
+            return  Crop.objects.get(pk=pk)
         except Crop.DoesNotExist:
-            raise Http404
+            raise Http4
     
     def get(self, request, pk):
         crop = self.get_obj(pk)
         serializer = CropSerializer(crop)
-        return Response(serializer.data, status=status.HTTP_200_oK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
     def put(self, request, pk):
         crop =  self.get_obj(pk)

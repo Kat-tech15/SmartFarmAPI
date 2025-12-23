@@ -6,6 +6,7 @@ from . models import Livestock
 class LivestockList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
     queryset = Livestock.objects.all()
     serializer_class = LivestockSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         return Livestock.objects.filter(farmer=self.request.user)
@@ -22,6 +23,7 @@ class LivestockList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.Gen
 class LivestockDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
     queryset = Livestock.objects.all()
     serializer_class = LivestockSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         return Livestock.objects.filter(farmer=self.request.user)
