@@ -1,23 +1,9 @@
-from rest_framework.response import Response
-from rest_framework.views  import APIView
-from django.http import Http404
-from rest_framework import status
-from .serializers import CropSerializer
+from rest_framework import generics, permissions
 from .models import Crop
+from .serializers import CropSerializer
 
-class CropList(APIView):
-    def get(self, request):
-        crops = Crop.objects.all()
-        serializer = CropSerializer(crops, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    def post(self, request):
-        serializer = CropSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+<<<<<<< HEAD
 class CropDetail(APIView):
     def get_obj(self, pk):
         try:
@@ -42,3 +28,15 @@ class CropDetail(APIView):
         crop = self.get_obj(pk)
         crop.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+=======
+class CropList(generics.ListCreateAPIView):
+    queryset = Crop.objects.all()
+    serializer_class = CropSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+class CropDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Crop.objects.all()
+    serializer_class = CropSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+>>>>>>> 4294538fb763fe93126bc76c703e502ff3037e80

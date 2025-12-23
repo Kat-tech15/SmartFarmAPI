@@ -1,6 +1,5 @@
-from rest_framework import generics, status, permissions
+from rest_framework import generics, permissions
 from accounts.permissions import IsOwnerOrReadOnly
-from rest_framework.response import Response
 from . models import Order
 from .serializers import OrderSerializer
 
