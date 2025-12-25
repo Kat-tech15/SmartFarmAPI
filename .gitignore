@@ -2,8 +2,4 @@
 __pycache__/
 *.pyc
 myvenv/
-<<<<<<< HEAD
 db.sqlite3
-=======
-db.sqlite3.env
->>>>>>> 4294538fb763fe93126bc76c703e502ff3037e80

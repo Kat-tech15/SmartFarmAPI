@@ -3,15 +3,11 @@ from . models import CustomUser, ContactMessage
 from rest_framework.authtoken.models import Token
 
 class UserSerializer(serializers.ModelSerializer):
-<<<<<<< HEAD
-    password = serializers.CharField(write_only=True)
-=======
     otp_via = serializers.ChoiceField(
         choices=[('email', 'Email'), ('sms', 'SMS')],
         default='email',
         write_only=True
     )
->>>>>>> 4294538fb763fe93126bc76c703e502ff3037e80
 
     class Meta:
         model = CustomUser
