@@ -27,7 +27,7 @@ class RegisterView(generics.GenericAPIView):
             return Response({'message': f'User registered successfully. OTP send via {otp_via}.'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class LoginView(APIView):
+class LoginView(generics.GenericAPIView):
     def post(self, request):
         serializer= self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -51,7 +51,7 @@ class LoginView(APIView):
         return Response({'message': 'Invalid credentials.'}, status=status.HTTP_401_UNAUTHORIZED)
 
     
-class LogoutView(APIView):
+class LogoutView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -93,7 +93,7 @@ class ContactMessageAdminView(generics.ListAPIView):
     serializer_class = ContactMessageSerializer
     permission_classes = [permissions.IsAdminUser]
 
-class ContactMessageDetailAdminView(generics.RetrieveUpdateDestroyAPIView):
+iclass ContactMessageDetailAdminView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ContactMessage.objects.all()
     serializer_class = ContactMessageSerializer
     permission_classes = [permissions.IsAdminUser]
