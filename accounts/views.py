@@ -93,7 +93,7 @@ class ContactMessageAdminView(generics.ListAPIView):
     serializer_class = ContactMessageSerializer
     permission_classes = [permissions.IsAdminUser]
 
-iclass ContactMessageDetailAdminView(generics.RetrieveUpdateDestroyAPIView):
+class ContactMessageDetailAdminView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ContactMessage.objects.all()
     serializer_class = ContactMessageSerializer
     permission_classes = [permissions.IsAdminUser]
