@@ -11,10 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 from pathlib import Path
 import os
-<<<<<<< HEAD
-=======
 from datetime import timedelta
->>>>>>> 4294538fb763fe93126bc76c703e502ff3037e80
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -27,11 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-<<<<<<< HEAD
 SECRET_KEY = os.getenv('SECRET_KEY', )
-=======
-SECRET_KEY = os.getenv('SECRET_KEY')
->>>>>>> 4294538fb763fe93126bc76c703e502ff3037e80
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
@@ -49,9 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework.authtoken',
-<<<<<<< HEAD
     'rest_framework_swagger',
-=======
     'django.contrib.sites',
     'allauth',
     'allauth.account',
@@ -59,7 +50,6 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'dj_rest_auth',
     'dj_rest_auth.registration',
->>>>>>> 4294538fb763fe93126bc76c703e502ff3037e80
     'rest_framework',
     'drf_yasg',
     'accounts',
