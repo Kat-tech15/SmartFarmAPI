@@ -1,4 +1,4 @@
-from rest_framework import mixins, generics
+from rest_framework import mixins, generics, permissions
 from .serializers import LivestockSerializer
 from . models import Livestock
 
